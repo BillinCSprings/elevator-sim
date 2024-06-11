@@ -17,9 +17,9 @@ Import project directory as project in IDE
 <li> The number of floors as well as the elevator's speed shall be configurable values
 </ol>
 
-#Future Enhancements
+# Future Enhancements
 <ol>
-<li>There building should contain more than one elevator </li>
+<li>The building should contain more than one elevator </li>
 <li> The elevator's speed should be adjusted during the travel to low down  it approaches the destination floor; then speed up when it departs</li>
 <li> The number of floors as well as the elevator's speed should be configured via .properties file
 </ol>
