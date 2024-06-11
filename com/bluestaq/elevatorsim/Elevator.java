@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * @class Elevator
+ * class Elevator
  * Class representing an elevator
  * Implemented as a singleton to prevent it being called via any other way than
  * via a Building class object
@@ -43,9 +43,9 @@ public class Elevator implements Runnable, IElevator {
 
         this.elevatorState = ElevatorState.IDLE;
 
-        this.currentFloor = 1;
-        this.departureFloor = 0;
-        this.destinationFloor = 0;
+        this.setCurrentFloor(1);
+        this.setDepartureFloor(0);
+        this.setDestinationFloor(0);
 
         this.elevatorElevatorStatusWriter = new ElevatorStatusWriter();
     }
@@ -118,7 +118,7 @@ public class Elevator implements Runnable, IElevator {
 
             if(allRequests.isEmpty()) {
                 try {
-                    Thread.sleep(travelTime * 1000L);
+                    Thread.sleep(travelTime);
                     continue;
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -137,7 +137,7 @@ public class Elevator implements Runnable, IElevator {
                 }
 
                 try {
-                    Thread.sleep(travelTime *1000L);
+                    Thread.sleep(travelTime);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }

@@ -29,7 +29,7 @@ public class PassengerGenerator implements Runnable {
                     Passenger passenger = new Passenger(departureFloor, destinationFloor);
                     this.elevator.callElevator(passenger);
                 }
-                Thread.sleep(this.travelTimeMultiplier * 1000L);
+                Thread.sleep(this.travelTimeMultiplier * elevator.getTravelTime());
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

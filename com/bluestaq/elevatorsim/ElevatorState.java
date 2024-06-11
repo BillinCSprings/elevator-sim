@@ -3,7 +3,7 @@ package com.bluestaq.elevatorsim;
 public enum ElevatorState {
     ACCELERATING{
         /**
-         * @toString
+         * method toString
          * @return String representation of enum value in title case
          */
         @Override
@@ -14,7 +14,7 @@ public enum ElevatorState {
 
     ASCENDING{
         /**
-         * @toString
+         * method toString
          * @return String representation of enum value in title case
          */
         @Override
@@ -24,7 +24,7 @@ public enum ElevatorState {
     },
     DECCELERATING{
         /**
-         * @toString
+         * method toString
          * @return String representation of enum value in title case
          */
         @Override
@@ -34,7 +34,7 @@ public enum ElevatorState {
     },
     DESCENDING{
         /**
-         * @toString
+         * method toString
          * @return String representation of enum value in title case
          */
         @Override
@@ -44,7 +44,7 @@ public enum ElevatorState {
     },
     IDLE{
         /**
-         * @toString
+         * method toString
          * @return String representation of enum value in title case
          */
         @Override
@@ -54,7 +54,7 @@ public enum ElevatorState {
     },
     STOPPING{
         /**
-         * @toString
+         * method toString
          * @return String representation of enum value in title case
          */
         @Override
@@ -62,5 +62,5 @@ public enum ElevatorState {
         public String toString() {
             return "Stopping";
         }
-    };
+    }
  }

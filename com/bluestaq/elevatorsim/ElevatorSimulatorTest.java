@@ -2,12 +2,9 @@ package com.bluestaq.elevatorsim;
 
 public class ElevatorSimulatorTest {
 
-
     public static void main(String[] args) {
 
         Building bldg = Building.get_Instance();
-
-        ElevatorStatusWriter elevatorElevatorStatusWriter = new ElevatorStatusWriter();
         Elevator elevator =  bldg.getElevator();
         PassengerGenerator passengerGenerator = new PassengerGenerator(.1f,
                 7,1);
