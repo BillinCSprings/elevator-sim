@@ -1,5 +1,9 @@
 package com.bluestaq.elevatorsim;
 
+/**
+ * class ElevatorStatusWriter
+ * Class responsible for outputting the elevator's location and status
+ */
 public class ElevatorStatusWriter {
     private final StringBuilder stringBuilder;
 

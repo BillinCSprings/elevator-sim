@@ -148,7 +148,7 @@ public class Elevator implements Runnable, IElevator {
     @Override
     public void run() {
         while(true) {
-            if(elevatorState == ElevatorState.STOPPED || elevatorState == ElevatorState.IDLE ) {
+             if(elevatorState == ElevatorState.STOPPED || elevatorState == ElevatorState.IDLE ) {
                 elevatorElevatorStatusWriter.WriteElevatorStatus(this);
             }
 
