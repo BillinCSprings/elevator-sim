@@ -2,14 +2,17 @@ package com.bluestaq.elevatorsim;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class PassengerGenerator implements Runnable {
+public class CallRequestGenerator implements Runnable {
     private final Elevator elevator;
     private final float probability;
     private final int floors;
     private final int travelTimeMultiplier;
 
-
-    public PassengerGenerator(float probability, int floors, int timeUnit) {
+    /**
+     * class CallRequestGenerator
+     * Class representing an elevator passenger's call request
+     */
+    public CallRequestGenerator(float probability, int floors, int timeUnit) {
         this.elevator = Building.get_Instance().getElevator();
         this.probability = probability;
         this.floors = floors;
@@ -26,8 +29,8 @@ public class PassengerGenerator implements Runnable {
                     if (departureFloor == destinationFloor) {
                         continue;
                     }
-                    Passenger passenger = new Passenger(departureFloor, destinationFloor);
-                    this.elevator.callElevator(passenger);
+                    CallRequest callRequest = new CallRequest(departureFloor, destinationFloor);
+                    this.elevator.callElevator(callRequest);
                 }
                 Thread.sleep(this.travelTimeMultiplier * elevator.getTravelTime());
             }

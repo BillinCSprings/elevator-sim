@@ -16,30 +16,49 @@ public class Elevator implements Runnable, IElevator {
     /**
      * Stores passengers, that has not been serviced yet
      */
-    private final CopyOnWriteArrayList<Passenger> waitingPassengers;
+    private final CopyOnWriteArrayList<CallRequest> waitingCallRequests;
 
     /**
      * Stores passengers, that has not been serviced yet
      */
-    private final CopyOnWriteArrayList<Passenger> insidePassengers;
+    private final CopyOnWriteArrayList<CallRequest> insideCallRequests;
 
     /**
-     * Stores all requests (both from waiting and inside passengers)
+     * Stores all requests (both from waiting and on-board passengers)
      */
-    private final ConcurrentSkipListSet<Integer> allRequests;
+    private final ConcurrentSkipListSet<Integer> callList;
     private final ElevatorStatusWriter elevatorElevatorStatusWriter;
+    /**
+     * Stores the elevator's current state e.g. IDLE, STOPPED, etc.
+     */
     public ElevatorState elevatorState;
+
+    /**
+     * Stores the amount of time the elevator needs tot travel between floors
+     */
     private int travelTime;
+
+    /**
+     * Stores the elevator's current floor number
+     */
     private int currentFloor;
+
+    /**
+     * Stores the floor number from which the elevator departed
+     */
     private int departureFloor;
+
+    /**
+     * Stores the floor number from where the elevator is headed
+     */
     private int destinationFloor;
 
     private Elevator() {
         this.setTravelTime(Defaults.TRAVEL_TIME);
 
-        this.waitingPassengers = new CopyOnWriteArrayList<>();
-        this.insidePassengers = new CopyOnWriteArrayList<>();
-        this.allRequests = new ConcurrentSkipListSet<>();
+        this.waitingCallRequests = new CopyOnWriteArrayList<>();
+        this.insideCallRequests = new CopyOnWriteArrayList<>();
+        this.callList = new ConcurrentSkipListSet<>();
 
         this.elevatorState = ElevatorState.IDLE;
 
@@ -49,6 +68,11 @@ public class Elevator implements Runnable, IElevator {
 
         this.elevatorElevatorStatusWriter = new ElevatorStatusWriter();
     }
+    /**
+     * method: get_Instance
+     * standard instance retrieval method signature for singleton
+     * @return Elevator instance
+     */
     public static Elevator getInstance() {
         if (instance == null){
             instance = new Elevator();
@@ -58,66 +82,78 @@ public class Elevator implements Runnable, IElevator {
 
 
     /**
-     * Add passenger's request to all requests list.
-     * If new request is higher than current destination for moving up or lower for moving down,
-     * then it will be a new destination.
-     * If elevator is stopped, then change current elevator state and update its source, destination.
-     * @param passenger passenger who send request to the elevator
+     * method: callElevator
+     * Add CallRequest's request to the call requests list.
+     * If new request is higher than current destination and it jives with the current direction is
+     * i.e. ASCENDING or it is lower nd the staate is DESCNDING, then it will become a new destination.
+     * If elevator is stopped, then the current elevator state,  it will be updated as well as
+     * its departure and destination floors
+     * @param callRequest CallRequest who send request to the elevator
      */
 
-    public void callElevator(Passenger passenger) {
-        waitingPassengers.add(passenger);
-        allRequests.add(passenger.departureFloor);
+    public void callElevator(CallRequest callRequest) {
+        waitingCallRequests.add(callRequest);
+        callList.add(callRequest.departureFloor);
 
-        boolean higherFloorRequest = (elevatorState == ElevatorState.ASCENDING && destinationFloor < passenger.departureFloor);
-        boolean lowerFloorRequest = (elevatorState == ElevatorState.DESCENDING && destinationFloor > passenger.departureFloor);
+        boolean higherFloorRequest = (elevatorState == ElevatorState.ASCENDING && destinationFloor < callRequest.departureFloor);
+        boolean lowerFloorRequest = (elevatorState == ElevatorState.DESCENDING && destinationFloor > callRequest.departureFloor);
         if(higherFloorRequest || lowerFloorRequest) {
-            destinationFloor = passenger.departureFloor;
+            destinationFloor = callRequest.departureFloor;
         }
 
-        if(elevatorState == ElevatorState.STOPPING) {
-            destinationFloor = passenger.departureFloor;
+        if(elevatorState == ElevatorState.STOPPED) {
+            destinationFloor = callRequest.departureFloor;
             elevatorState = destinationFloor - currentFloor > 0 ? ElevatorState.ASCENDING : ElevatorState.DESCENDING;
         }
     }
 
     /**
+     * method takePassengers
      * Take waiting passengers from current floor (if there are passengers for whom sourceFloor==currentFloor).
      * Update passengers lists and request list.
      */
     private void takePassengers() {
-        for (Passenger passenger : waitingPassengers) {
-            if (passenger.departureFloor == currentFloor) {
-                waitingPassengers.remove(passenger);
-                insidePassengers.add(passenger);
-                allRequests.add(passenger.destinationFloor);
-                allRequests.remove(currentFloor);
+        for (CallRequest callRequest : waitingCallRequests) {
+            if (callRequest.departureFloor == currentFloor) {
+                waitingCallRequests.remove(callRequest);
+                insideCallRequests.add(callRequest);
+                callList.add(callRequest.destinationFloor);
+                callList.remove(currentFloor);
             }
         }
     }
 
     /**
+     * method releasePassengers
      * Release passengers in current floor (if there are inside passengers for whom destinationFloor==currentFloor).
      * Update inside passengers list and request list.
      */
     private void releasePassengers() {
-        for (Passenger passenger : insidePassengers) {
-            if (passenger.destinationFloor == currentFloor) {
-                insidePassengers.remove(passenger);
-                allRequests.remove(passenger.destinationFloor);
+        for (CallRequest callRequest : insideCallRequests) {
+            if (callRequest.destinationFloor == currentFloor) {
+                insideCallRequests.remove(callRequest);
+                callList.remove(callRequest.destinationFloor);
             }
         }
     }
 
+
+    /**
+     * method run
+     * The execution loop for the Elevator thread.
+     * It processes the call list, then updates the elevator's state,
+     * as well as the departure and destination floors
+     */
+
     @Override
     public void run() {
         while(true) {
-            if(elevatorState == ElevatorState.STOPPING) {
-                elevatorElevatorStatusWriter.print(this);
+            if(elevatorState == ElevatorState.STOPPED || elevatorState == ElevatorState.IDLE ) {
+                elevatorElevatorStatusWriter.WriteElevatorStatus(this);
             }
 
-            if(allRequests.isEmpty()) {
-                try {
+            if(callList.isEmpty()) {
+                 try {
                     Thread.sleep(travelTime);
                     continue;
                 } catch (InterruptedException e) {
@@ -129,9 +165,9 @@ public class Elevator implements Runnable, IElevator {
             int step = destinationFloor - departureFloor > 0 ? 1 : -1;
             while(currentFloor != destinationFloor) {
 
-                elevatorElevatorStatusWriter.print(this);
+                elevatorElevatorStatusWriter.WriteElevatorStatus(this);
 
-                if(allRequests.contains(currentFloor)) {
+                if(callList.contains(currentFloor)) {
                     releasePassengers();
                     takePassengers();
                 }
@@ -142,13 +178,14 @@ public class Elevator implements Runnable, IElevator {
                     throw new RuntimeException(e);
                 }
                 currentFloor += step;
+                System.out.println("Current Floor: "+ currentFloor);
             }
             takePassengers();
             releasePassengers();
-            elevatorState = ElevatorState.STOPPING;
+            elevatorState = ElevatorState.STOPPED;
             departureFloor = currentFloor;
-            if(!allRequests.isEmpty()) {
-                destinationFloor = allRequests.getFirst();
+            if(!callList.isEmpty()) {
+                destinationFloor = callList.getFirst();
                 elevatorState = destinationFloor - currentFloor > 0 ? ElevatorState.ASCENDING : ElevatorState.DESCENDING;
             }
         }
@@ -156,12 +193,12 @@ public class Elevator implements Runnable, IElevator {
 
 
     //Accessors
-    public CopyOnWriteArrayList<Passenger> getWaitingPassengers() {
-        return waitingPassengers;
+    public CopyOnWriteArrayList<CallRequest> getWaitingPassengers() {
+        return waitingCallRequests;
     }
 
-     public CopyOnWriteArrayList<Passenger> getInsidePassengers() {
-        return insidePassengers;
+     public CopyOnWriteArrayList<CallRequest> getPassengersInElevator() {
+        return insideCallRequests;
     }
 
     public int getCurrentFloor() {
@@ -196,8 +233,8 @@ public class Elevator implements Runnable, IElevator {
         this.elevatorState = elevatorState;
     }
 
-     public ConcurrentSkipListSet<Integer> getAllRequests() {
-        return allRequests;
+     public ConcurrentSkipListSet<Integer> getCallList() {
+        return callList;
     }
 
     public int getTravelTime() {

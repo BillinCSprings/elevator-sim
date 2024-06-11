@@ -7,12 +7,27 @@ package com.bluestaq.elevatorsim;
  */
 public class Building {
 
+    /**
+     * Stores the highest floor number in the building
+     */
     private int MAX_FLOOR = Defaults.MAX_FLOOR;
+
+    /**
+     * Stores the lowest floor number in the building
+     */
     private final int MIN_FLOOR = Defaults.MIN_FLOOR;
     //Setting as final to prevent modification
 
+
+    /**
+     * The Building object's Elevator
+     */
     private Elevator elevator;
 
+
+    /**
+     * Stores the building's instance to be returned as prt of a getInstance call
+     */
     private static Building instance;
 
     /**
@@ -22,9 +37,9 @@ public class Building {
     private Building(){}
 
     /**
-     * @method: get_Instance
+     * method: get_Instance
      * standard instance retrieval method signature for singleton
-     * @return
+     * @return Building instance
      */
     public static Building get_Instance(){
         if (instance == null) {
@@ -35,7 +50,7 @@ public class Building {
      }
 
     /**
-     * Adding accessor methods
+     * Accessor methods
     */
     public int getMAX_FLOOR() {
         return MAX_FLOOR;
@@ -49,11 +64,7 @@ public class Building {
         return MIN_FLOOR;
     }
 
-    /**
-     * method getElevator
-     * @return Elevator object
-     */
-    public Elevator getElevator() {
+     public Elevator getElevator() {
         return elevator;
     }
 

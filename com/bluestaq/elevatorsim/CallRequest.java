@@ -1,10 +1,14 @@
 package com.bluestaq.elevatorsim;
 
-public class Passenger {
+/**
+ * class CallRequest
+ * Class representing an elevator passenger's call request
+ */
+public class CallRequest {
     public int departureFloor;
     public int destinationFloor;
 
-    public Passenger(int deptFloor, int destFloor) {
+    public CallRequest(int deptFloor, int destFloor) {
         this.departureFloor = deptFloor;
         this.destinationFloor = destFloor;
     }

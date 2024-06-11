@@ -8,11 +8,11 @@ public class ElevatorStatusWriter {
         stringBuilder = new StringBuilder();
     }
 
-    private void appendWaitingPassengerSymbol(Passenger passenger) {
+    private void appendWaitingPassengerSymbol(CallRequest callRequest) {
         stringBuilder.append("(")
-                .append(passenger.departureFloor)
+                .append(callRequest.departureFloor)
                 .append("-->")
-                .append(passenger.destinationFloor)
+                .append(callRequest.destinationFloor)
                 .append(")");
     }
 
@@ -24,30 +24,33 @@ public class ElevatorStatusWriter {
                 .append("-->")
                 .append(elevator.getDestinationFloor())
                 .append(") | ")
-                .append(elevator.getInsidePassengers().size())
+                .append(elevator.getPassengersInElevator().size())
                 .append(" passengers]\t");
     }
 
-    public void print(IElevator elevator) {
-        stringBuilder.append("ALL REQUESTS: ").append(elevator.getAllRequests()).append("\n");
-        for(int i = Building.get_Instance().getMAX_FLOOR(); i>= 0; i--) {
+    public void WriteElevatorStatus(IElevator elevator) {
+        stringBuilder.append("Current Floor: ").append(elevator.getCurrentFloor()).append("\n")
+                     .append("Requests: ").append(elevator.getCallList()).append("\n");
+
+        for(int i = Building.get_Instance().getMAX_FLOOR(); i>= Building.get_Instance().getMIN_FLOOR(); i--) {
             stringBuilder.append(i).append("\t");
+
+            stringBuilder.append("Floor: ").append(elevator.getCurrentFloor());
 
             if(i == elevator.getCurrentFloor()) {
                 appendElevatorSymbol(elevator);
-            } else {
-                stringBuilder.append("_____________________________________\t");
             }
 
-            for(Passenger passenger : elevator.getWaitingPassengers()) {
-                if(passenger.departureFloor == i) {
-                    appendWaitingPassengerSymbol(passenger);
+
+            for(CallRequest callRequest : elevator.getWaitingPassengers()) {
+                if(callRequest.departureFloor == i) {
+                    appendWaitingPassengerSymbol(callRequest);
                 }
             }
             stringBuilder.append("\n");
         }
 
-        System.out.println(stringBuilder);
+        System.out.println(stringBuilder.toString());
         stringBuilder.delete(0, stringBuilder.length()-1);
     }
 }

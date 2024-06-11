@@ -4,13 +4,15 @@ public class ElevatorSimulatorTest {
 
     public static void main(String[] args) {
 
+        System.out.println("Test Starting");
+
         Building bldg = Building.get_Instance();
         Elevator elevator =  bldg.getElevator();
-        PassengerGenerator passengerGenerator = new PassengerGenerator(.1f,
-                7,1);
+        CallRequestGenerator callRequestGenerator = new CallRequestGenerator(.1f,
+                10,1);
 
         Thread elevatorThread = new Thread(elevator);
-        Thread passengerGeneratorThread = new Thread(passengerGenerator);
+        Thread passengerGeneratorThread = new Thread(callRequestGenerator);
 
         elevatorThread.start();
         passengerGeneratorThread.start();

@@ -4,12 +4,12 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface IElevator {
-     CopyOnWriteArrayList<Passenger> getWaitingPassengers();
-    CopyOnWriteArrayList<Passenger> getInsidePassengers();
+    CopyOnWriteArrayList<CallRequest> getWaitingPassengers();
+    CopyOnWriteArrayList<CallRequest> getPassengersInElevator();
     int getCurrentFloor();
     int getDepartureFloor();
     int getDestinationFloor();
     ElevatorState getElevatorState();
-    ConcurrentSkipListSet<Integer> getAllRequests();
-    void callElevator(Passenger passenger);
+    ConcurrentSkipListSet<Integer> getCallList();
+    void callElevator(CallRequest callRequest);
 }
